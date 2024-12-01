@@ -1,55 +1,101 @@
-from flask import Flask, render_template, redirect, url_for, request, flash
+from flask import Flask, render_template, redirect, url_for, request, flash, session    
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_bcrypt import Bcrypt
+from sqlalchemy.dialects.sqlite import JSON  
+from werkzeug.utils import secure_filename
+import secrets
+
+
+
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # Change this to a secure secret key
+app.secret_key = secrets.token_urlsafe(16)  
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['UPLOAD_FOLDER'] = 'static/uploads/'
 
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
 
-# User model for authentication
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+#region Models
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), nullable=False, unique=True)
     password = db.Column(db.String(150), nullable=False)
     
 class Album(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)  
     title = db.Column(db.String(150), nullable=False)
-    description = db.Column(db.Text, nullable=True)
+    description = db.Column(db.Text, nullable=True) 
+    release_year = db.Column(db.Integer, nullable=True) 
+    cover_image = db.Column(db.String(300), nullable=True)  
+    songs = db.Column(JSON, nullable=True)
+    ranking = db.Column(db.Integer, nullable=True)  # Album ranking
+#endregion
 
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
-
-# Home Route
+#region Basic Routes
 @app.route('/')
 def home():
-    return render_template('index.html')
+    top_albums = Album.query.order_by(Album.ranking.asc()).limit(4).all()
+    return render_template('index.html', albums=top_albums)
 
-# About Route
 @app.route('/about')
 def about():
     return render_template('about.html')
 
-# History Route
 @app.route('/history')
 def history():
     return render_template('history.html')
 
-# Albums Route
+@app.route('/album_form', methods=['GET', 'POST'])
+@login_required
+def album_form():
+    if request.method == 'POST':
+        title = request.form['title']
+        description = request.form['description']
+        songs = request.form['songs']
+        release_year = request.form['release_year']
+        ranking = request.form['ranking']
+
+        # Handle file upload for the album cover image
+        cover_image = request.files['cover_image']
+        cover_image_filename = secure_filename(cover_image.filename)
+        cover_image_filepath = app.config['UPLOAD_FOLDER'] + cover_image_filename
+        cover_image.save(cover_image_filepath)
+
+        # Create a new album instance
+        new_album = Album(
+            title=title,
+            description=description,
+            cover_image=cover_image_filepath,
+            songs=songs,
+            release_year=release_year,
+            ranking=ranking
+        )
+
+        # Add the album to the database
+        db.session.add(new_album)
+        db.session.commit()
+
+        return redirect(url_for('home'))  # Redirect to the homepage after album creation
+
+    return render_template('album_form.html')  # Render the form
+
+
+#endregion
+
 @app.route('/albums')
 def albums():
-    albums = Album.query.all()
-    return render_template('albums.html', albums=albums)
+    all_albums = Album.query.all()
+    return render_template('albums.html', albums=all_albums)
 
-# Add Login System Routes
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -68,6 +114,7 @@ def login():
 def logout():
     logout_user()
     flash('Logged out successfully!', 'success')
+    session['user_id'] = None
     return redirect(url_for('home'))
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -83,42 +130,31 @@ def signup():
         return redirect(url_for('login'))
     return render_template('signup.html')
 
-# Protect Album Management Routes with Login Required
-@app.route('/album/new', methods=['GET', 'POST'])
-@login_required
-def new_album():
-    if request.method == 'POST':
-        title = request.form['title']
-        description = request.form['description']
-        new_album = Album(title=title, description=description)
-        db.session.add(new_album)
-        db.session.commit()
-        flash('Album created successfully!', 'success')
-        return redirect(url_for('albums'))
-    return render_template('new_album.html')
+@app.route('/albums_list', methods=['GET'])
+@login_required  # Ensure only authorized users can view this page
+def albums_list():
+    albums = Album.query.all()  # Fetch all albums from the database
+    return render_template('albums_list.html', albums=albums)
 
-@app.route('/album/<int:album_id>/edit', methods=['GET', 'POST'])
-@login_required
-def edit_album(album_id):
-    album = Album.query.get_or_404(album_id)
-    if request.method == 'POST':
-        album.title = request.form['title']
-        album.description = request.form['description']
-        db.session.commit()
-        flash('Album updated successfully!', 'success')
-        return redirect(url_for('albums'))
-    return render_template('edit_album.html', album=album)
-
-@app.route('/album/<int:album_id>/delete', methods=['POST'])
-@login_required
+@app.route('/delete_album/<int:album_id>', methods=['POST'])
+@login_required  # Ensure only authorized users can delete
 def delete_album(album_id):
-    album = Album.query.get_or_404(album_id)
-    db.session.delete(album)
-    db.session.commit()
-    flash('Album deleted successfully!', 'success')
-    return redirect(url_for('albums'))
+    album = Album.query.get_or_404(album_id)  # Find the album by its ID
+    db.session.delete(album)  # Delete the album from the database
+    db.session.commit()  # Commit the changes to the database
+    flash('Album deleted successfully!', 'success')  # Show a success message
+    return redirect(url_for('albums_list'))  # Redirect back to the album list page
+
+@app.route('/album/<int:album_id>', methods=['GET'])
+def album(album_id):
+    album = Album.query.get_or_404(album_id)  # Replace this with actual database query
+    if not album:
+        return "Album not found", 404
+    return render_template('album.html', album=album)
 
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()  # Creates tables if they don't exist
+        db.create_all() 
     app.run(debug=True)
+
+

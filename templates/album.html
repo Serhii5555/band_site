@@ -1,6 +1,26 @@
-<title></title>{% block title %}Album{% endblock %}</title> {% extends "shared/base.html" %} {% block content
+<title>{{ album.title }}</title> {% extends "shared/base.html" %} {%
+block content
 %}
-<div class="text-center py-8">
-  <h1 class="text-4xl font-bold text-blue-600">Album</h1>
+<div class="album-detail-container text-yellow-400">
+  <h1 class="album-title text-4xl">{{ album.title }}</h1>
+  <img src="{{ url_for('static', filename='uploads/' + album.cover_image.split('/')[-1]) }}" alt="{{ album.title }}"
+    class="album-cover w-full sm:w-1/2 mx-auto">
+
+  <div class="album-info mt-6 w-full">
+    <p><strong>Release Year:</strong> {{ album.release_year }}</p>
+    <p><strong>Ranking:</strong> {{ album.ranking }}</p>
+    <p><strong>Description:</strong> {{ album.description }}</p>
+
+    <h2 class="text-2xl mt-4">Tracklist:</h2>
+    <ul class="tracklist">
+      {% for song in album.songs.split(',') %}
+      <li>{{ loop.index }}. {{ song.strip() }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="album-actions mt-6">
+    <a href="{{ url_for('albums') }}" class="back-to-albums-btn">Back to Albums</a>
+  </div>
 </div>
 {% endblock %}

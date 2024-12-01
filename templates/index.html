@@ -3,17 +3,18 @@
     .pill-button {
       font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
       font-size: 16px;
-      padding: 4px;
+      padding: 6px;
       background-color: #000000;
-      border-radius: 10px;
+      border-radius: 12px;
       cursor: pointer;
-      margin-right: 20px;
+      margin-right: 30px;
     }
 
     .pill-button:hover {
       background-color: rgb(36, 36, 36);
     }
   </style>
+  <title>{% block title %}Home{% endblock %}</title>
 </head>
 {% extends "shared/base_video.html" %} {% block content %}
 
@@ -24,16 +25,22 @@
   </p>
 </div>
 
-<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-  <div>
-    <img class="h-auto max-w-full" src="/static/images/IN_UTERO_COVER.jpg" alt="" />
+<div class="grid grid-cols-2 lg:grid-cols-4">
+  {% for album in albums %}
+  <div class="relative group">
+    {% if album.cover_image %}
+    <a href="{{ url_for('album', album_id=album.id) }}" class="relative">
+      <img class="h-auto max-w-full" src="{{ album.cover_image }}" alt="{{ album.title }}" />
+      <div
+        class="absolute inset-0 bg-black bg-opacity-70 text-white flex flex-col justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <p class="text-[20px]">{{ album.release_year }}</p>
+        <h3 class="text-[45px] font-bold text-center">{{ album.title.upper() }}</h3>
+      </div>
+    </a>
+    {% endif %}
   </div>
-  <div>
-    <img class="h-auto max-w-full" src="/static/images/NEVERMIND_COVER.jpg" alt="" />
-  </div>
-  <div>
-    <img class="h-auto max-w-full" src="/static/images/BLEACH_COVER.jpg" alt="" />
-  </div>
+  {% endfor %}
 </div>
+
 
 {% endblock %}
