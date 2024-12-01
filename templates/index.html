@@ -1,0 +1,82 @@
+{% extends "base.html" %} {% block content %}
+<head>
+  <style>
+    .video-background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: max-content;
+      object-fit: cover;
+      z-index: -1;
+    }
+
+    .content-section {
+      position: relative;
+      z-index: 1;
+
+      margin-top: 66%;
+    }
+
+    .pill-button {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 16px;
+      padding: 4px;
+      background-color: #000000;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-right: 20px;
+    }
+
+    .pill-button:hover {
+      background-color: rgb(36, 36, 36);
+    }
+  </style>
+</head>
+
+<!-- Video Background -->
+<video autoplay muted loop class="video-background">
+  <source
+    src="{{ url_for('static', filename='../static/videos/video.mp4') }}"
+    type="video/mp4"
+  />
+  Your browser does not support the video tag.
+</video>
+
+<!-- Content Section -->
+<div class="content-section bg-black">
+  <div
+    class="relative flex py-5 items-center justify-between bg-yellow-400 w-full h-12 pt-12 pb-12"
+  >
+    <p style="font-family: 'Nirvana'" class="text-[60px] ml-5">ALBUMS</p>
+    <p class="pill-button text-yellow-400">
+      <a href="/albums">SEE ALL</a>
+    </p>
+  </div>
+
+  <div class="grid grid-cols-2 md:grid-cols-3">
+    <div>
+      <img
+        class="h-auto max-w-full"
+        src="/static/images/IN_UTERO_COVER.jpg"
+        alt=""
+      />
+    </div>
+    <div>
+      <img
+        class="h-auto max-w-full"
+        src="/static/images/NEVERMIND_COVER.jpg"
+        alt=""
+      />
+    </div>
+    <div>
+      <img
+        class="h-auto max-w-full"
+        src="/static/images/BLEACH_COVER.jpg"
+        alt=""
+      />
+    </div>
+  </div>
+</div>
+
+{% endblock %}
