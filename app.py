@@ -1,13 +1,15 @@
 from flask import Flask, render_template, redirect, url_for, request, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask_bcrypt import Bcrypt
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'
+app.secret_key = 'your_secret_key'  # Change this to a secure secret key
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
+bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
 
@@ -16,8 +18,7 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), nullable=False, unique=True)
     password = db.Column(db.String(150), nullable=False)
-
-# Album model for album pages
+    
 class Album(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(150), nullable=False)
@@ -27,28 +28,62 @@ class Album(db.Model):
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+# Home Route
 @app.route('/')
 def home():
     return render_template('index.html')
 
+# About Route
 @app.route('/about')
 def about():
     return render_template('about.html')
 
+# History Route
 @app.route('/history')
 def history():
     return render_template('history.html')
 
+# Albums Route
 @app.route('/albums')
 def albums():
     albums = Album.query.all()
     return render_template('albums.html', albums=albums)
 
-@app.route('/album/<int:album_id>')
-def album(album_id):
-    album = Album.query.get_or_404(album_id)
-    return render_template('album.html', album=album)
+# Add Login System Routes
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        user = User.query.filter_by(username=username).first()
+        if user and bcrypt.check_password_hash(user.password, password):
+            login_user(user)
+            flash('Logged in successfully!', 'success')
+            return redirect(url_for('home'))
+        flash('Invalid credentials.', 'danger')
+    return render_template('login.html')
 
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('Logged out successfully!', 'success')
+    return redirect(url_for('home'))
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+        user = User(username=username, password=hashed_password)
+        db.session.add(user)
+        db.session.commit()
+        flash('Account created successfully! You can now log in.', 'success')
+        return redirect(url_for('login'))
+    return render_template('signup.html')
+
+# Protect Album Management Routes with Login Required
 @app.route('/album/new', methods=['GET', 'POST'])
 @login_required
 def new_album():
@@ -82,30 +117,6 @@ def delete_album(album_id):
     db.session.commit()
     flash('Album deleted successfully!', 'success')
     return redirect(url_for('albums'))
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        user = User.query.filter_by(username=username).first()
-        if user and user.password == password:  # In production, use password hashing
-            login_user(user)
-            flash('Logged in successfully!', 'success')
-            return redirect(url_for('home'))
-        flash('Invalid credentials.', 'danger')
-    return render_template('login.html')
-
-@app.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    flash('Logged out successfully!', 'success')
-    return redirect(url_for('home'))
-
-@app.route('/signup')
-def signup():
-    return render_template('signup.html')
 
 if __name__ == '__main__':
     with app.app_context():

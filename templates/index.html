@@ -15,38 +15,24 @@
     }
   </style>
 </head>
-{% extends "base_video.html" %} {% block content %}
+{% extends "shared/base_video.html" %} {% block content %}
 
-<div
-  class="relative flex py-5 items-center justify-between bg-yellow-400 w-full h-12 pt-12 pb-12"
->
-  <p style="font-family: 'Nirvana'" class="text-[60px] ml-5">ALBUMS</p>
+<div class="relative flex py-5 items-center justify-between bg-yellow-400 w-full h-12 pt-12 pb-12">
+  <p class="text-[60px] ml-5 nirvana">ALBUMS</p>
   <p class="pill-button text-yellow-400">
     <a href="/albums">SEE ALL</a>
   </p>
 </div>
 
-<div class="grid grid-cols-2 md:grid-cols-4">
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
   <div>
-    <img
-      class="h-auto max-w-full"
-      src="/static/images/IN_UTERO_COVER.jpg"
-      alt=""
-    />
+    <img class="h-auto max-w-full" src="/static/images/IN_UTERO_COVER.jpg" alt="" />
   </div>
   <div>
-    <img
-      class="h-auto max-w-full"
-      src="/static/images/NEVERMIND_COVER.jpg"
-      alt=""
-    />
+    <img class="h-auto max-w-full" src="/static/images/NEVERMIND_COVER.jpg" alt="" />
   </div>
   <div>
-    <img
-      class="h-auto max-w-full"
-      src="/static/images/BLEACH_COVER.jpg"
-      alt=""
-    />
+    <img class="h-auto max-w-full" src="/static/images/BLEACH_COVER.jpg" alt="" />
   </div>
 </div>
 

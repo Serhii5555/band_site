@@ -1,6 +1,16 @@
-{% block title %}Login{% endblock %} {% extends "base.html" %} {% block content
-%}
-<div class="text-center py-8">
-  <h1 class="text-4xl font-bold text-blue-600">Login</h1>
+<title>{% block title %}Login{% endblock %}</title>{% extends "shared/base.html"
+%} {% block content %}
+<div class="text-center py-8 text-white">
+  <h1>Login</h1>
+  <form method="POST">
+    <label for="username">Username:</label>
+    <input type="text" name="username" required />
+    <br />
+    <label for="password">Password:</label>
+    <input type="password" name="password" required />
+    <br />
+    <button type="submit">Login</button>
+  </form>
+  <p>Don't have an account? <a href="{{ url_for('signup') }}">Register</a></p>
 </div>
 {% endblock %}
