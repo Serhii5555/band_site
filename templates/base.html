@@ -11,10 +11,23 @@
       rel="stylesheet"
     />
     <link href="https://fonts.cdnfonts.com/css/nirvana" rel="stylesheet" />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: black;
+      }
+
+      .content-wrapper {
+        padding: 20px;
+      }
+    </style>
   </head>
-  <body class="bg-slate-300">
+
+  <body>
+    <!-- Header Section -->
     <header
-      class="flex py-4 px-4 sm:px-10 bg-transparent font-[sans-serif] min-h-[70px] tracking-wide relative z-50"
+      class="flex py-4 px-4 sm:px-10 bg-transparent font-[sans-serif] min-h-[70px] tracking-wide"
     >
       <div class="flex flex-wrap items-center justify-between gap-5 w-full">
         <a href="/"
@@ -22,9 +35,7 @@
             src="../static/images/band_logo_yellow.png"
             alt="logo"
             class="w-36"
-          />
-        </a>
-
+        /></a>
         <div
           id="collapseMenu"
           class="max-lg:hidden lg:!block max-lg:before:fixed max-lg:before:bg-black max-lg:before:opacity-50 max-lg:before:inset-0 max-lg:before:z-50"
@@ -51,25 +62,23 @@
           <ul
             class="lg:flex gap-x-5 max-lg:space-y-3 max-lg:fixed max-lg:bg-transparent max-lg:w-1/2 max-lg:min-w-[300px] max-lg:top-0 max-lg:left-0 max-lg:p-6 max-lg:h-full max-lg:shadow-md max-lg:overflow-auto z-50"
           >
-            <li class="hidden max-lg:block mb-10"></li>
-
             <li class="max-lg:border-b border-gray-300 max-lg:py-3 px-3">
               <a
-                href="/about"
+                href="{{ url_for('about') }}"
                 class="hover:text-yellow-400 text-gray-300 block font-semibold text-[20px]"
                 >ABOUT US</a
               >
             </li>
             <li class="max-lg:border-b border-gray-300 max-lg:py-3 px-3">
               <a
-                href="/albums"
+                href="{{ url_for('albums') }}"
                 class="hover:text-yellow-400 text-gray-300 block font-semibold text-[20px]"
                 >ALBUMS</a
               >
             </li>
             <li class="max-lg:border-b border-gray-300 max-lg:py-3 px-3">
               <a
-                href="/history"
+                href="{{ url_for('history') }}"
                 class="hover:text-yellow-400 text-gray-300 block font-semibold text-[20px]"
                 >HISTORY</a
               >
@@ -78,34 +87,28 @@
         </div>
 
         <div class="flex max-lg:ml-auto space-x-4">
-          <button
+          {% if current_user.is_authenticated %}
+          <h1>Welcome, {{ current_user.username }}!</h1>
+          <a href="{{ url_for('logout') }}">Logout</a>
+          {% else %}
+          <a
             class="px-4 py-2 text-sm rounded-full font-bold text-gray-500 border-2 bg-transparent hover:bg-gray-50 transition-all ease-in-out duration-300"
+            href="{{ url_for('login') }}"
+            >Login</a
           >
-            Login
-          </button>
-          <button
-            class="px-4 py-2 text-sm rounded-full font-bold text-white border-2 border-[#007bff] bg-[#007bff] transition-all ease-in-out duration-300 hover:bg-transparent hover:text-[#007bff]"
+          <a
+            class="px-4 py-2 text-sm rounded-full font-bold text-black border-2 border-yellow-700 bg-yellow-300 transition-all ease-in-out duration-300 hover:bg-transparent hover:text-yellow-700"
+            href="{{ url_for('signup') }}"
+            >Sign up</a
           >
-            Sign up
-          </button>
-
-          <button id="toggleOpen" class="lg:hidden">
-            <svg
-              class="w-8 h-8"
-              fill="#ccc"
-              viewBox="0 0 20 20"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                clip-rule="evenodd"
-              ></path>
-            </svg>
-          </button>
+          {% endif %}
         </div>
       </div>
     </header>
-    {% block content %} {% endblock %}
+
+    <!-- Page Content -->
+    <div class="content-wrapper bg-black">
+      {% block content %} {% endblock %}
+    </div>
   </body>
 </html>
