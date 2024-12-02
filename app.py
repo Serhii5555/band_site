@@ -7,8 +7,6 @@ from werkzeug.utils import secure_filename
 import secrets
 
 
-
-
 app = Flask(__name__)
 app.secret_key = secrets.token_urlsafe(16)  
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
@@ -62,13 +60,11 @@ def create_album():
         release_year = request.form['release_year']
         ranking = request.form['ranking']
 
-        # Handle file upload for the album cover image
         cover_image = request.files['cover_image']
         cover_image_filename = secure_filename(cover_image.filename)
         cover_image_filepath = app.config['UPLOAD_FOLDER'] + cover_image_filename
         cover_image.save(cover_image_filepath)
 
-        # Create a new album instance
         new_album = Album(
             title=title,
             description=description,
@@ -78,16 +74,13 @@ def create_album():
             ranking=ranking
         )
 
-        # Add the album to the database
         db.session.add(new_album)
         db.session.commit()
 
-        return redirect(url_for('home'))  # Redirect to the homepage after album creation
+        return redirect(url_for('home'))  
 
-    return render_template('create_album.html')  # Render the form
+    return render_template('create_album.html')  
 
-
-#endregion
 
 @app.route('/albums')
 def albums():
@@ -129,28 +122,29 @@ def signup():
     return render_template('signup.html')
 
 @app.route('/albums_list', methods=['GET'])
-@login_required  # Ensure only authorized users can view this page
+@login_required  
 def albums_list():
-    albums = Album.query.all()  # Fetch all albums from the database
+    albums = Album.query.all() 
     return render_template('albums_list.html', albums=albums)
 
 @app.route('/delete_album/<int:album_id>', methods=['POST'])
-@login_required  # Ensure only authorized users can delete
+@login_required  
 def delete_album(album_id):
-    album = Album.query.get_or_404(album_id)  # Find the album by its ID
-    db.session.delete(album)  # Delete the album from the database
-    db.session.commit()  # Commit the changes to the database
-    flash('Album deleted successfully!', 'success')  # Show a success message
-    return redirect(url_for('albums_list'))  # Redirect back to the album list page
+    album = Album.query.get_or_404(album_id) 
+    db.session.delete(album) 
+    db.session.commit()  
+    flash('Album deleted successfully!', 'success')  
+    return redirect(url_for('albums_list')) 
 
 @app.route('/album/<int:album_id>', methods=['GET'])
 def album(album_id):
-    album = Album.query.get_or_404(album_id)  # Replace this with actual database query
+    album = Album.query.get_or_404(album_id)  
     if not album:
         return "Album not found", 404
     return render_template('album.html', album=album)
 
 @app.route('/edit_album/<int:album_id>', methods=['GET', 'POST'])
+@login_required
 def edit_album(album_id):
     album = Album.query.get_or_404(album_id)
 
@@ -161,7 +155,6 @@ def edit_album(album_id):
         album.release_year = request.form['release_year']
         album.ranking = request.form['ranking']
 
-        # Handle file upload for cover image
         cover_image = request.files.get('cover_image')
         if cover_image:
             cover_image.save(f"static/uploads/{cover_image.filename}")
@@ -169,7 +162,7 @@ def edit_album(album_id):
 
         db.session.commit()
 
-        return redirect(url_for('albums_list'))  # Redirect to album view page
+        return redirect(url_for('albums_list'))  
 
     return render_template('edit_album.html', album=album)
 

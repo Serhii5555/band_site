@@ -29,3 +29,15 @@ npm install
 ```bash
 python app.py
 ```
+
+### **5. Test the Application**
+
+Test account:
+Username: 
+```bash
+test123
+```
+Password: 
+```bash
+test123
+```
