@@ -5,12 +5,13 @@
 ### **1. Clone the Repository**
 
 ```bash
-git clone https://github.com/Serhii5555/band_site/tree/master
+git clone https://github.com/Serhii5555/band_site
 ```
 
 ### **2. Set Up a Python Virtual Environment (Optional but Recommended)**
 
 ```bash
+cd band_site
 python -m venv .venv
 source .venv/bin/activate    # For Linux/Mac
 .venv\Scripts\activate       # For Windows
