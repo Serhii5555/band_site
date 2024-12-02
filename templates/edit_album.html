@@ -1,0 +1,95 @@
+<title>
+    {% block title %}Edit Album{% endblock %}</title> {% extends "shared/base.html" %} {% block
+content %}
+<form method="POST" action="{{ url_for('edit_album', album_id=album.id) }}" enctype="multipart/form-data"
+    class="w-full h-[80vh] flex flex-col justify-center items-center helvetica">
+
+    <div class="text-center mb-5">
+        <h2 class="nirvana text-[50px] text-yellow-400">Edit Album</h2>
+    </div>
+    <div class="w-full max-w-5xl flex flex-col sm:flex-row justify-center items-center gap-10">
+        <!-- Left Column -->
+        <div class="w-80 h-80 border-2 border-dashed border-yellow-400 flex justify-center items-center relative">
+            <input type="file" name="cover_image" id="cover_image" accept="image/*"
+                class="absolute inset-0 opacity-0 cursor-pointer z-10" onchange="previewImage(event)" />
+            <img id="cover_preview"
+                src="{{ url_for('static', filename='uploads/' + album.cover_image.split('/')[-1]) }}"
+                alt="Cover Preview" class="w-full h-full object-cover {{ 'hidden' if not album.cover_image else '' }}">
+        </div>
+
+        <!-- Right Column -->
+        <div class="w-full sm:w-1/2 flex flex-col">
+            <!-- Album Title -->
+            <div class="relative z-0 w-full mb-5 group">
+                <input type="text" name="title" id="floating_title" value="{{ album.title }}" class="block py-2.5 px-0 w-full text-sm !bg-transparent border-0 border-b-2 border-gray-300 appearance-none
+            text-white focus:outline-none focus:ring-0 focus:border-yellow-400 peer" placeholder=" " required />
+                <label for="floating_title"
+                    class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:text-yellow-400 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Album
+                    Title</label>
+            </div>
+
+
+            <!-- Album Description -->
+            <div class="relative z-0 w-full mb-5 group">
+                <textarea name="description" id="description" rows="4"
+                    class="block py-2.5 px-0 w-full text-sm !bg-transparent border-0 border-b-2 border-gray-300 appearance-none text-white focus:outline-none focus:ring-0 focus:border-yellow-400 peer"
+                    placeholder=" " required>{{ album.description }}</textarea>
+                <label for="description"
+                    class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:text-yellow-400 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Album
+                    Description</label>
+            </div>
+
+            <!-- Song List -->
+            <div class="relative z-0 w-full mb-5 group">
+                <textarea name="songs" id="songs" rows="4"
+                    class="block py-2.5 px-0 w-full text-sm !bg-transparent border-0 border-b-2 border-gray-300 appearance-none text-white focus:outline-none focus:ring-0 focus:border-yellow-400 peer"
+                    placeholder=" " required>{{ album.songs }}</textarea>
+                <label for="songs"
+                    class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:text-yellow-400 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Song
+                    Names (comma-separated)</label>
+            </div>
+
+            <!-- Release Year -->
+            <div class="relative z-0 w-full mb-5 group">
+                <input type="number" name="release_year" id="release_year" value="{{ album.release_year }}" class="block py-2.5 px-0 w-full text-sm !bg-transparent border-0 border-b-2 border-gray-300 appearance-none
+            text-white focus:outline-none focus:ring-0 focus:border-yellow-400 peer" placeholder=" " required />
+                <label for="release_year"
+                    class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:text-yellow-400 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Release
+                    Year</label>
+            </div>
+
+            <!-- Ranking -->
+            <div class="relative z-0 w-full mb-5 group">
+                <input type="number" name="ranking" id="ranking" value="{{ album.ranking }}" class="block py-2.5 px-0 w-full text-sm !bg-transparent border-0 border-b-2 border-gray-300 appearance-none
+            text-white focus:outline-none focus:ring-0 focus:border-yellow-400 peer" placeholder=" " required />
+                <label for="ranking"
+                    class="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:text-yellow-400 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Ranking</label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Submit Button -->
+    <div class="mt-5">
+        <button type="submit"
+            class="text-black bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:outline-none focus:ring-yellow-700 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center">Edit
+            Album</button>
+    </div>
+
+</form>
+
+<script>
+    function previewImage(event) {
+        const input = event.target;
+        const preview = document.getElementById('cover_preview');
+
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                preview.src = e.target.result;
+                preview.classList.remove('hidden');
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
+{% endblock %}

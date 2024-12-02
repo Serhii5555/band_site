@@ -1,25 +1,27 @@
-<title>{% block title %}Sign Up{% endblock %}</title> {% extends
+<title>{% block title %}Albums List{% endblock %}</title> {% extends
 "shared/base.html" %} {% block content %}
-<h1 class="text-3xl font-bold text-center mb-6">Album List</h1>
+<h1 class="text-center text-[60px] mb-6 mt-10 text-yellow-400 nirvana">Album List</h1>
 
-<div class="overflow-x-auto">
-    <table class="min-w-full table-auto bg-white shadow-lg rounded-lg">
-        <thead class="bg-gray-200 text-gray-700">
+<div class="overflow-x-auto helvetica mb-20 p-8">
+    <table class="min-w-full table-auto table">
+        <thead class="text-black bg-yellow-400">
             <tr>
                 <th class="px-4 py-2 text-left">Title</th>
                 <th class="px-4 py-2 text-left">Description</th>
+                <th class="px-4 py-2 text-left">Songs</th>
                 <th class="px-4 py-2 text-left">Release Year</th>
                 <th class="px-4 py-2 text-left">Ranking</th>
                 <th class="px-4 py-2 text-left">Cover Image</th>
                 <th class="px-4 py-2 text-left">Actions</th>
             </tr>
         </thead>
-        <tbody class="text-gray-800">
+        <tbody class="text-white ">
             {% if albums %}
             {% for album in albums %}
-            <tr class="border-b hover:bg-gray-50">
+            <tr class="border-b hover:bg-gray-900">
                 <td class="px-4 py-2">{{ album.title }}</td>
                 <td class="px-4 py-2">{{ album.description }}</td>
+                <td class="px-4 py-2">{{ album.songs }}</td>
                 <td class="px-4 py-2">{{ album.release_year }}</td>
                 <td class="px-4 py-2">{{ album.ranking }}</td>
                 <td class="px-4 py-2">
@@ -28,8 +30,26 @@
                 <td class="px-4 py-2">
                     <form action="{{ url_for('delete_album', album_id=album.id) }}" method="POST"
                         style="display:inline;">
-                        <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-                            onclick="return confirm('Are you sure you want to delete this album?')">Delete</button>
+                        <button type="submit"
+                            onclick=" return confirm('Are you sure you want to delete this album?')"><svg
+                                class="w-6 h-6 text-yellow-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                width="24" height="24" viewBox=" 0 0 24 24">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z" />
+                            </svg>
+                        </button>
+                    </form>
+                    <form action="{{ url_for('edit_album', album_id=album.id) }}" method="GET" style="display:inline;">
+                        <button type="submit" class="text-yellow-400"><svg class="w-6 h-6 text-yellow-400"
+                                aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="25" height="25"
+                                viewBox="0 0 24 24">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z" />
+                            </svg>
+
+                        </button>
                     </form>
                 </td>
             </tr>

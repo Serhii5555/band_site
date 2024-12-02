@@ -24,7 +24,6 @@ login_manager.login_view = "login"
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-#region Models
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), nullable=False, unique=True)
@@ -37,10 +36,9 @@ class Album(db.Model):
     release_year = db.Column(db.Integer, nullable=True) 
     cover_image = db.Column(db.String(300), nullable=True)  
     songs = db.Column(JSON, nullable=True)
-    ranking = db.Column(db.Integer, nullable=True)  # Album ranking
-#endregion
+    ranking = db.Column(db.Integer, nullable=True)  
 
-#region Basic Routes
+
 @app.route('/')
 def home():
     top_albums = Album.query.order_by(Album.ranking.asc()).limit(4).all()
@@ -54,9 +52,9 @@ def about():
 def history():
     return render_template('history.html')
 
-@app.route('/album_form', methods=['GET', 'POST'])
+@app.route('/create_album', methods=['GET', 'POST'])
 @login_required
-def album_form():
+def create_album():
     if request.method == 'POST':
         title = request.form['title']
         description = request.form['description']
@@ -86,7 +84,7 @@ def album_form():
 
         return redirect(url_for('home'))  # Redirect to the homepage after album creation
 
-    return render_template('album_form.html')  # Render the form
+    return render_template('create_album.html')  # Render the form
 
 
 #endregion
@@ -151,6 +149,29 @@ def album(album_id):
     if not album:
         return "Album not found", 404
     return render_template('album.html', album=album)
+
+@app.route('/edit_album/<int:album_id>', methods=['GET', 'POST'])
+def edit_album(album_id):
+    album = Album.query.get_or_404(album_id)
+
+    if request.method == 'POST':
+        album.title = request.form['title']
+        album.description = request.form['description']
+        album.songs = request.form['songs']
+        album.release_year = request.form['release_year']
+        album.ranking = request.form['ranking']
+
+        # Handle file upload for cover image
+        cover_image = request.files.get('cover_image')
+        if cover_image:
+            cover_image.save(f"static/uploads/{cover_image.filename}")
+            album.cover_image = f"static/uploads/{cover_image.filename}"
+
+        db.session.commit()
+
+        return redirect(url_for('albums_list'))  # Redirect to album view page
+
+    return render_template('edit_album.html', album=album)
 
 if __name__ == '__main__':
     with app.app_context():
