@@ -1,0 +1,1 @@
+![NirvanaLogo](static/images/band_logo_yellow.png)
